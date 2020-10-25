@@ -17,7 +17,6 @@ const useStyles = makeStyles({
 });
 
 const headerCells = [
-  { display: "Facultad", accessor: "faculty_id" },
   { display: "Código", accessor: "code" },
   { display: "Nombre", accessor: "name" },
   { display: "Ciclo", accessor: "semester" },

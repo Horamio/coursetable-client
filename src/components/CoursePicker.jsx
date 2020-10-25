@@ -7,11 +7,7 @@ import CourseTable from "./CourseTable";
 import CourseFilter from "./CourseFilter";
 
 // Helpers
-import request from "../utils/services";
-
-const getCourses = () => {
-  return request("/courses");
-};
+import { getCourses } from "../utils";
 
 const StyledCoursePicker = styled.div`
   display: flex;
@@ -26,7 +22,7 @@ const StyledCoursePicker = styled.div`
 export default function CoursePicker() {
   const { isLoading: isCoursesLoading, data: courses } = useQuery(
     "courses",
-    getCourses
+    () => getCourses()
   );
 
   if (isCoursesLoading) return null;

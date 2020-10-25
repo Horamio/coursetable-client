@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { useQuery } from "react-query";
 
 // Components
 import TextField from "@material-ui/core/TextField";
 import Paper from "@material-ui/core/Paper";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+
+// Helpers
+import { getColleges, getFaculties, getSpecialities } from "../utils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,64 +28,34 @@ const useStyles = makeStyles((theme) => ({
 
 export default function CourseFilter() {
   const classes = useStyles();
+  const [college, setCollege] = useState();
+  const [faculty, setFaculty] = useState();
+
+  const collegesQuery = useQuery("colleges", () => getColleges());
+  const facultiesQuery = useQuery("faculties", () => getFaculties(college));
+  const specialitiesQuery = useQuery("specialities", () =>
+    getSpecialities(college, faculty)
+  );
+
+  if (
+    collegesQuery.isLoading ||
+    facultiesQuery.isLoading ||
+    specialitiesQuery.isLoading
+  )
+    return null;
 
   return (
     <Paper className={classes.root}>
       <form className={classes.form} noValidate autoComplete="off">
         <div>
-          <FormControl>
-            <InputLabel id="demo-simple-select-label">Age</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={""}
-              onChange={() => {}}
-            >
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            required
-            id="standard-required"
-            label="Required"
-            defaultValue="Hello World"
-          />
-          <TextField
-            disabled
-            id="standard-disabled"
-            label="Disabled"
-            defaultValue="Hello World"
-          />
-          <TextField
-            id="standard-password-input"
-            label="Password"
-            type="password"
-            autoComplete="current-password"
-          />
-          <TextField
-            id="standard-read-only-input"
-            label="Read Only"
-            defaultValue="Hello World"
-            InputProps={{
-              readOnly: true,
-            }}
-          />
-          <TextField
-            id="standard-number"
-            label="Number"
-            type="number"
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <TextField id="standard-search" label="Search field" type="search" />
-          <TextField
-            id="standard-helperText"
-            label="Helper text"
-            defaultValue="Default Value"
-            helperText="Some important text"
+          <Autocomplete
+            id="combo-box-demo"
+            options={collegesQuery.data}
+            getOptionLabel={(option) => option.name}
+            style={{ width: 300 }}
+            renderInput={(params) => (
+              <TextField {...params} label="Combo box" variant="outlined" />
+            )}
           />
         </div>
       </form>
