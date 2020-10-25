@@ -28,12 +28,12 @@ export default function CoursePicker() {
     refetch,
   } = useQuery("courses", () => getCourses(...params));
 
-  const onParamsChange = (college, faculty, speciality) => {
+  const onParamsChange = (college, faculty, speciality, semester) => {
     const collegeId = college && college.id;
     const facultyId = faculty && faculty.id;
     const specialityId = speciality && speciality.id;
 
-    setParams(() => [collegeId, facultyId, specialityId]);
+    setParams(() => [collegeId, facultyId, specialityId, semester]);
   };
 
   useEffect(() => {

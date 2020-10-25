@@ -6,6 +6,7 @@ import { useQuery } from "react-query";
 import TextField from "@material-ui/core/TextField";
 import Paper from "@material-ui/core/Paper";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import MenuItem from "@material-ui/core/MenuItem";
 
 // Helpers
 import { getColleges, getFaculties, getSpecialities } from "../utils";
@@ -25,11 +26,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const semesters = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
 export default function CourseFilter({ onParamsChange = () => {} }) {
   const classes = useStyles();
   const [college, setCollege] = useState(null);
   const [faculty, setFaculty] = useState(null);
   const [speciality, setSpeciality] = useState(null);
+  const [semester, setSemester] = useState("");
 
   const collegesQuery = useQuery("colleges", () => getColleges());
   const facultiesQuery = useQuery("faculties", () =>
@@ -43,23 +47,31 @@ export default function CourseFilter({ onParamsChange = () => {} }) {
     setCollege(newValue);
     setFaculty(null);
     setSpeciality(null);
+    setSemester("");
   };
 
   const onFacultyChange = (event, newValue) => {
     setFaculty(newValue);
     setSpeciality(null);
+    setSemester("");
   };
 
   const onSpecialityChange = (event, newValue) => {
     setSpeciality(newValue);
+    setSemester("");
+  };
+
+  const onSemesterChange = (event) => {
+    setSemester(event.target.value);
   };
 
   useEffect(() => {
-    onParamsChange(college, faculty, speciality);
+    onParamsChange(college, faculty, speciality, semester);
   }, [
     JSON.stringify(college),
     JSON.stringify(faculty),
     JSON.stringify(speciality),
+    JSON.stringify(semester),
   ]);
 
   useEffect(() => {
@@ -132,6 +144,23 @@ export default function CourseFilter({ onParamsChange = () => {} }) {
               />
             )}
           />
+          <TextField
+            id="combo-box-speciality"
+            select
+            label="Ciclo"
+            value={semester}
+            onChange={onSemesterChange}
+            variant="outlined"
+            size="small"
+            margin="normal"
+          >
+            <MenuItem value={""}>{"Todos"}</MenuItem>
+            {semesters.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </TextField>
         </div>
       </form>
     </Paper>
