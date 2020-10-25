@@ -47,7 +47,10 @@ export default function CourseTable() {
         <TableHead>
           <TableRow>
             {headerCells.map((headerCell, index) => (
-              <TableCell align={index === 0 ? "left" : "right"}>
+              <TableCell
+                key={headerCell.accessor}
+                align={index === 0 ? "left" : "right"}
+              >
                 {headerCell.display}
               </TableCell>
             ))}
@@ -57,7 +60,10 @@ export default function CourseTable() {
           {courses.map((course) => (
             <TableRow key={course.name}>
               {headerCells.map((headerCell, index) => (
-                <TableCell align={index === 0 ? "left" : "right"}>
+                <TableCell
+                  key={headerCell.accessor}
+                  align={index === 0 ? "left" : "right"}
+                >
                   {course[headerCell.accessor]}
                 </TableCell>
               ))}
