@@ -11,8 +11,8 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 
 const useStyles = makeStyles({
-  table: {
-    minWidth: 650,
+  root: {
+    maxWidth: 650,
   },
 });
 
@@ -30,8 +30,8 @@ export default function CourseTable({ isLoading, courses }) {
   if (isLoading) return null;
 
   return (
-    <TableContainer component={Paper}>
-      <Table className={classes.table} size="small" aria-label="a dense table">
+    <TableContainer className={classes.root} component={Paper}>
+      <Table size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
             {headerCells.map((headerCell, index) => (

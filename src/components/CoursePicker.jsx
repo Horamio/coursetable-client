@@ -13,9 +13,14 @@ const getCourses = () => {
   return request("/courses");
 };
 
-const StyledDiv = styled.div`
+const StyledCoursePicker = styled.div`
   display: flex;
-  padding: 50px;
+  justify-content: space-between;
+  .table-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
 `;
 
 export default function CoursePicker() {
@@ -27,9 +32,11 @@ export default function CoursePicker() {
   if (isCoursesLoading) return null;
 
   return (
-    <StyledDiv>
+    <StyledCoursePicker>
       <CourseFilter />
-      <CourseTable isLoading={isCoursesLoading} courses={courses} />
-    </StyledDiv>
+      <div className="table-container">
+        <CourseTable isLoading={isCoursesLoading} courses={courses} />
+      </div>
+    </StyledCoursePicker>
   );
 }
