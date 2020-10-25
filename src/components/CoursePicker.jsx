@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useQuery } from "react-query";
 
@@ -20,16 +20,31 @@ const StyledCoursePicker = styled.div`
 `;
 
 export default function CoursePicker() {
-  const { isLoading: isCoursesLoading, data: courses } = useQuery(
-    "courses",
-    () => getCourses()
-  );
+  const [params, setParams] = useState([]);
+
+  const {
+    isLoading: isCoursesLoading,
+    data: courses,
+    refetch,
+  } = useQuery("courses", () => getCourses(...params));
+
+  const onParamsChange = (college, faculty, speciality) => {
+    const collegeId = college && college.id;
+    const facultyId = faculty && faculty.id;
+    const specialityId = speciality && speciality.id;
+
+    setParams(() => [collegeId, facultyId, specialityId]);
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [JSON.stringify(params)]);
 
   if (isCoursesLoading) return null;
 
   return (
     <StyledCoursePicker>
-      <CourseFilter />
+      <CourseFilter onParamsChange={onParamsChange} />
       <div className="table-container">
         <CourseTable isLoading={isCoursesLoading} courses={courses} />
       </div>

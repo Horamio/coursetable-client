@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CourseFilter() {
+export default function CourseFilter({ onParamsChange = () => {} }) {
   const classes = useStyles();
   const [college, setCollege] = useState(null);
   const [faculty, setFaculty] = useState(null);
@@ -53,6 +53,14 @@ export default function CourseFilter() {
   const onSpecialityChange = (event, newValue) => {
     setSpeciality(newValue);
   };
+
+  useEffect(() => {
+    onParamsChange(college, faculty, speciality);
+  }, [
+    JSON.stringify(college),
+    JSON.stringify(faculty),
+    JSON.stringify(speciality),
+  ]);
 
   useEffect(() => {
     facultiesQuery.refetch();

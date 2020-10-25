@@ -26,7 +26,7 @@ const headerCells = [
 export default function CourseTable({ isLoading, courses }) {
   const classes = useStyles();
 
-  if (isLoading) return null;
+  if (isLoading || !courses) return null;
 
   return (
     <TableContainer className={classes.root} component={Paper}>
