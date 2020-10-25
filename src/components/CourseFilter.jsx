@@ -20,7 +20,6 @@ const useStyles = makeStyles((theme) => ({
   },
   form: {
     "& .MuiFormControl-root": {
-      margin: theme.spacing(1),
       width: "25ch",
     },
   },
@@ -46,15 +45,50 @@ export default function CourseFilter() {
 
   return (
     <Paper className={classes.root}>
-      <form className={classes.form} noValidate autoComplete="off">
+      <form noValidate autoComplete="off">
         <div>
           <Autocomplete
-            id="combo-box-demo"
+            id="combo-box-college"
             options={collegesQuery.data}
             getOptionLabel={(option) => option.name}
-            style={{ width: 300 }}
             renderInput={(params) => (
-              <TextField {...params} label="Combo box" variant="outlined" />
+              <TextField
+                {...params}
+                label="Universidad"
+                variant="outlined"
+                size="small"
+                margin="normal"
+              />
+            )}
+          />
+          <Autocomplete
+            id="combo-box-faculty"
+            options={facultiesQuery.data}
+            getOptionLabel={(option) => option.name}
+            style={{ width: "25ch" }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Facultad"
+                variant="outlined"
+                size="small"
+                margin="normal"
+              />
+            )}
+          />
+          <Autocomplete
+            id="combo-box-speciality"
+            options={specialitiesQuery.data}
+            getOptionLabel={(option) => option.name}
+            style={{ width: "25ch" }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Especialidad"
+                variant="outlined"
+                size="small"
+                margin="normal"
+              />
             )}
           />
         </div>
