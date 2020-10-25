@@ -3,7 +3,11 @@ import { makeStyles } from "@material-ui/core/styles";
 
 // Components
 import TextField from "@material-ui/core/TextField";
-import { Paper } from "@material-ui/core";
+import Paper from "@material-ui/core/Paper";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "20px",
   },
   form: {
-    "& .MuiTextField-root": {
+    "& .MuiFormControl-root": {
       margin: theme.spacing(1),
       width: "25ch",
     },
@@ -28,6 +32,19 @@ export default function CourseFilter() {
     <Paper className={classes.root}>
       <form className={classes.form} noValidate autoComplete="off">
         <div>
+          <FormControl>
+            <InputLabel id="demo-simple-select-label">Age</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={""}
+              onChange={() => {}}
+            >
+              <MenuItem value={10}>Ten</MenuItem>
+              <MenuItem value={20}>Twenty</MenuItem>
+              <MenuItem value={30}>Thirty</MenuItem>
+            </Select>
+          </FormControl>
           <TextField
             required
             id="standard-required"
