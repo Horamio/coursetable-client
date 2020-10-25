@@ -6,6 +6,7 @@ import CoursePicker from "./components/CoursePicker";
 
 const StyledContainer = styled.div`
   padding: 0px 40px;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
 `;
 
 function App() {
