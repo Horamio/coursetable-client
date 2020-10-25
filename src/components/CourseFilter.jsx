@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useQuery } from "react-query";
 
@@ -27,14 +27,41 @@ const useStyles = makeStyles((theme) => ({
 
 export default function CourseFilter() {
   const classes = useStyles();
-  const [college, setCollege] = useState();
-  const [faculty, setFaculty] = useState();
+  const [college, setCollege] = useState(null);
+  const [faculty, setFaculty] = useState(null);
+  const [speciality, setSpeciality] = useState(null);
 
   const collegesQuery = useQuery("colleges", () => getColleges());
-  const facultiesQuery = useQuery("faculties", () => getFaculties(college));
-  const specialitiesQuery = useQuery("specialities", () =>
-    getSpecialities(college, faculty)
+  const facultiesQuery = useQuery("faculties", () =>
+    getFaculties(college && college.id)
   );
+  const specialitiesQuery = useQuery("specialities", () =>
+    getSpecialities(college && college.id, faculty && faculty.id)
+  );
+
+  const onCollegeChange = (event, newValue) => {
+    setCollege(newValue);
+    setFaculty(null);
+    setSpeciality(null);
+  };
+
+  const onFacultyChange = (event, newValue) => {
+    setFaculty(newValue);
+    setSpeciality(null);
+  };
+
+  const onSpecialityChange = (event, newValue) => {
+    setSpeciality(newValue);
+  };
+
+  useEffect(() => {
+    facultiesQuery.refetch();
+    specialitiesQuery.refetch();
+  }, [JSON.stringify(college)]);
+
+  useEffect(() => {
+    specialitiesQuery.refetch();
+  }, [JSON.stringify(faculty)]);
 
   if (
     collegesQuery.isLoading ||
@@ -45,10 +72,12 @@ export default function CourseFilter() {
 
   return (
     <Paper className={classes.root}>
-      <form noValidate autoComplete="off">
+      <form className={classes.form} noValidate autoComplete="off">
         <div>
           <Autocomplete
             id="combo-box-college"
+            value={college}
+            onChange={onCollegeChange}
             options={collegesQuery.data}
             getOptionLabel={(option) => option.name}
             renderInput={(params) => (
@@ -63,6 +92,8 @@ export default function CourseFilter() {
           />
           <Autocomplete
             id="combo-box-faculty"
+            value={faculty}
+            onChange={onFacultyChange}
             options={facultiesQuery.data}
             getOptionLabel={(option) => option.name}
             style={{ width: "25ch" }}
@@ -78,6 +109,8 @@ export default function CourseFilter() {
           />
           <Autocomplete
             id="combo-box-speciality"
+            value={speciality}
+            onChange={onSpecialityChange}
             options={specialitiesQuery.data}
             getOptionLabel={(option) => option.name}
             style={{ width: "25ch" }}
