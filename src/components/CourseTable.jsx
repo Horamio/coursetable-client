@@ -13,14 +13,7 @@ import Paper from "@material-ui/core/Paper";
 
 const useStyles = makeStyles({});
 
-const headerCells = [
-  { display: "Código", accessor: "code" },
-  { display: "Nombre", accessor: "name" },
-  { display: "Ciclo", accessor: "semester" },
-  { display: "Creditos", accessor: "credits" },
-];
-
-export default function CourseTable({ isLoading, courses }) {
+export default function CourseTable({ isLoading, courses, headerCells = [] }) {
   const classes = useStyles();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
