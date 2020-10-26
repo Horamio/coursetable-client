@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { useQuery } from "react-query";
 
 // Components
 import CourseTable from "./CourseTable";
@@ -30,35 +29,25 @@ const formatCourses = (courses) => {
 };
 
 export default function CoursePicker() {
-  const [params, setParams] = useState([]);
+  const [courses, setCourses] = useState([]);
 
-  const {
-    isLoading: isCoursesLoading,
-    data: courses,
-    refetch,
-  } = useQuery("courses", () => getCourses(...params));
-
-  const onParamsChange = (college, faculty, speciality, semester) => {
-    const collegeId = college && college.id;
-    const facultyId = faculty && faculty.id;
-    const specialityId = speciality && speciality.id;
-
-    setParams(() => [collegeId, facultyId, specialityId, semester]);
+  const onAddCourse = (newCourse) => {
+    if (
+      !newCourse ||
+      !newCourse.id ||
+      courses.some((course) => course.id === newCourse.id)
+    )
+      return null;
+    setCourses((prevState) => [newCourse, ...prevState]);
   };
-
-  useEffect(() => {
-    refetch();
-  }, [JSON.stringify(params)]);
-
-  if (isCoursesLoading) return null;
 
   return (
     <StyledCoursePicker>
-      <CourseFilter onParamsChange={onParamsChange} />
+      <CourseFilter onAddCourse={onAddCourse} />
       <div className="table-container">
         <CourseTable
-          change={JSON.stringify(params)}
-          isLoading={isCoursesLoading}
+          change={courses.length}
+          isLoading={false}
           courses={formatCourses(courses)}
           headerCells={headerCells}
         />

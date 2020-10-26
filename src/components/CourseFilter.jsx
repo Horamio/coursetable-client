@@ -34,7 +34,10 @@ const useStyles = makeStyles((theme) => ({
 
 const semesters = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-export default function CourseFilter({ onParamsChange = () => {} }) {
+export default function CourseFilter({
+  onParamsChange = () => {},
+  onAddCourse = () => {},
+}) {
   const classes = useStyles();
   const [college, setCollege] = useState(null);
   const [faculty, setFaculty] = useState(null);
@@ -205,7 +208,7 @@ export default function CourseFilter({ onParamsChange = () => {} }) {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Course"
+                label="Curso"
                 variant="outlined"
                 size="small"
                 margin="normal"
@@ -214,7 +217,12 @@ export default function CourseFilter({ onParamsChange = () => {} }) {
           />
         </div>
         <div className={classes.alignRight}>
-          <Button variant="contained" color="primary" endIcon={<AddIcon />}>
+          <Button
+            onClick={(e) => onAddCourse(course)}
+            variant="contained"
+            color="primary"
+            endIcon={<AddIcon />}
+          >
             Agregar
           </Button>
         </div>
