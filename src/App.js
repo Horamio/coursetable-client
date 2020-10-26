@@ -9,7 +9,8 @@ const StyledContainer = styled.div`
   padding: 0px 40px;
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   .schedule-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: 500px 1fr;
   }
 `;
 
