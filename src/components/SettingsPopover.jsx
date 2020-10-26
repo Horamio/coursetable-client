@@ -24,14 +24,8 @@ const useStyles = makeStyles((theme) => ({
 export default function SettingsPopover({ course }) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
-  const {
-    isLoading: isSectionsLoading,
-    data: sections,
-    refetch,
-  } = useQuery("sections" + course.id, () => getSections(course.id));
 
   const handleClick = (event) => {
-    refetch();
     setAnchorEl(event.currentTarget);
   };
 
@@ -41,8 +35,6 @@ export default function SettingsPopover({ course }) {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
-
-  if (isSectionsLoading) return null;
 
   return (
     <div>
@@ -65,7 +57,7 @@ export default function SettingsPopover({ course }) {
         }}
       >
         <FormGroup row>
-          {sections.map((section) => (
+          {course.sections.map((section) => (
             <FormControlLabel
               key={section.id}
               control={
