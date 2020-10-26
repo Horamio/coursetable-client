@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 
 // Components
 import CourseTable from "./CourseTable";
 import CourseFilter from "./CourseFilter";
 import SettingsPopover from "./SettingsPopover";
-
-// Helpers
-import { getCourses } from "../utils";
+import RemoveIcon from "@material-ui/icons/Remove";
+import IconButton from "@material-ui/core/IconButton";
 
 const StyledCoursePicker = styled.div`
-  width: 400px;
+  width: 470px;
 `;
 
 const headerCells = [
@@ -18,15 +17,8 @@ const headerCells = [
   { display: "Ciclo", accessor: "semester" },
   { display: "Créditos", accessor: "credits" },
   { display: "Sección", accessor: "settings" },
+  { display: "", accessor: "remove" },
 ];
-
-const formatCourses = (courses) => {
-  return courses.map((course) => ({
-    codeName: `${course.name} (${course.code})`,
-    settings: <SettingsPopover key={course.id} course={course} />,
-    ...course,
-  }));
-};
 
 export default function CoursePicker() {
   const [courses, setCourses] = useState([]);
@@ -39,6 +31,29 @@ export default function CoursePicker() {
     )
       return null;
     setCourses((prevState) => [newCourse, ...prevState]);
+  };
+
+  const onRemoveCourse = (removedCourse) => {
+    setCourses((prevState) => {
+      return prevState.filter((course) => course.id !== removedCourse.id);
+    });
+  };
+
+  const formatCourses = (courses) => {
+    return courses.map((course) => ({
+      codeName: `${course.name} (${course.code})`,
+      settings: <SettingsPopover key={course.id} course={course} />,
+      remove: (
+        <IconButton
+          onClick={() => onRemoveCourse(course)}
+          edge="end"
+          aria-label="comments"
+        >
+          <RemoveIcon />
+        </IconButton>
+      ),
+      ...course,
+    }));
   };
 
   return (
