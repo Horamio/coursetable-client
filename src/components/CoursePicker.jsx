@@ -10,13 +10,7 @@ import CourseFilter from "./CourseFilter";
 import { getCourses } from "../utils";
 
 const StyledCoursePicker = styled.div`
-  display: flex;
-  justify-content: space-between;
-  .table-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
+  width: 400px;
 `;
 
 export default function CoursePicker() {

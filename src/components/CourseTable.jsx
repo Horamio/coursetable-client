@@ -11,15 +11,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
 import Paper from "@material-ui/core/Paper";
 
-const useStyles = makeStyles({
-  root: {
-    maxWidth: 650,
-    paddingTop: "25px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-  },
-});
+const useStyles = makeStyles({});
 
 const headerCells = [
   { display: "Código", accessor: "code" },

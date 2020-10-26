@@ -7,6 +7,9 @@ import CoursePicker from "./components/CoursePicker";
 const StyledContainer = styled.div`
   padding: 0px 40px;
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  zoom: 0.75;
+  -moz-transform: scale(0.75);
+  -moz-transform-origin: 0 0;
 `;
 
 function App() {

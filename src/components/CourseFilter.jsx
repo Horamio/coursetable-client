@@ -11,20 +11,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 // Helpers
 import { getColleges, getFaculties, getSpecialities } from "../utils";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "30ch",
-    padding: "20px",
-  },
-  form: {
-    "& .MuiFormControl-root": {
-      width: "25ch",
-    },
-  },
-}));
+const useStyles = makeStyles((theme) => ({}));
 
 const semesters = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
