@@ -10,15 +10,15 @@ export const getColleges = () => {
 
 export const getFaculties = (college = "") => {
   let url = "/faculties?";
-  if (college) url += `college=${college}&`;
+  if (college) url += `college_id=${college}&`;
 
   return request(url);
 };
 
 export const getSpecialities = (college = "", faculty = "") => {
   let url = "/specialities?";
-  if (college) url += `college=${college}&`;
-  if (faculty) url += `faculty=${faculty}&`;
+  if (college) url += `college_id=${college}&`;
+  if (faculty) url += `faculty_id=${faculty}&`;
 
   return request(url);
 };
@@ -30,10 +30,17 @@ export const getCourses = (
   semester = ""
 ) => {
   let url = "/courses?";
-  if (college) url += `college=${college}&`;
-  if (faculty) url += `faculty=${faculty}&`;
-  if (speciality) url += `speciality=${speciality}&`;
+  if (college) url += `college_id=${college}&`;
+  if (faculty) url += `faculty_id=${faculty}&`;
+  if (speciality) url += `speciality_id=${speciality}&`;
   if (semester) url += `semester=${semester}&`;
+
+  return request(url);
+};
+
+export const getSections = (course = "") => {
+  let url = "/sections?";
+  if (course) url += `course_id=${course}&`;
 
   return request(url);
 };
