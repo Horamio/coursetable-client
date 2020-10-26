@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 //components
@@ -13,7 +13,12 @@ import Paper from "@material-ui/core/Paper";
 
 const useStyles = makeStyles({});
 
-export default function CourseTable({ isLoading, courses, headerCells = [] }) {
+export default function CourseTable({
+  isLoading,
+  courses,
+  headerCells = [],
+  change,
+}) {
   const classes = useStyles();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -26,6 +31,10 @@ export default function CourseTable({ isLoading, courses, headerCells = [] }) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  useEffect(() => {
+    setPage(0);
+  }, [change]);
 
   if (isLoading || !courses) return null;
 

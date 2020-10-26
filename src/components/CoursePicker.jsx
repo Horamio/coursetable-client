@@ -57,6 +57,7 @@ export default function CoursePicker() {
       <CourseFilter onParamsChange={onParamsChange} />
       <div className="table-container">
         <CourseTable
+          change={JSON.stringify(params)}
           isLoading={isCoursesLoading}
           courses={formatCourses(courses)}
           headerCells={headerCells}
