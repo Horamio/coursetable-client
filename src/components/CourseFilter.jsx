@@ -204,6 +204,7 @@ export default function CourseFilter({
             onChange={onCourseChange}
             options={coursesQuery.data}
             getOptionLabel={(option) => option.name}
+            getOptionSelected={(option) => option.id === course.id}
             style={{ width: "25ch" }}
             renderInput={(params) => (
               <TextField

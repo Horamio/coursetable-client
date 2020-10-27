@@ -18,6 +18,8 @@ export default function CourseTable({
   courses,
   headerCells = [],
   change,
+  onRemoveCourse,
+  onToggleSection,
 }) {
   const classes = useStyles();
   const [page, setPage] = useState(0);
@@ -63,7 +65,19 @@ export default function CourseTable({
                     key={headerCell.accessor}
                     align={index === 0 ? "left" : "right"}
                   >
-                    {course[headerCell.accessor]}
+                    {(() => {
+                      if (headerCell.accessor === "settings") {
+                        const Component = course[headerCell.accessor];
+                        return <Component onToggleSection={onToggleSection} />;
+                      }
+                      if (headerCell.accessor === "remove") {
+                        const Component = course[headerCell.accessor];
+                        return (
+                          <Component onClick={() => onRemoveCourse(course)} />
+                        );
+                      }
+                      return course[headerCell.accessor];
+                    })()}
                   </TableCell>
                 ))}
               </TableRow>

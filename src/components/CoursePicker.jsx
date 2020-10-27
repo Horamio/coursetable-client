@@ -20,6 +20,25 @@ const headerCells = [
   { display: "", accessor: "remove" },
 ];
 
+const formatCourses = (courses) => {
+  return courses.map((course) => ({
+    codeName: `${course.name} (${course.code})`,
+    settings: ({ onToggleSection }) => (
+      <SettingsPopover
+        key={course.id}
+        course={course}
+        onToggleSection={onToggleSection}
+      />
+    ),
+    remove: ({ onClick }) => (
+      <IconButton onClick={onClick} edge="end" aria-label="comments">
+        <RemoveIcon />
+      </IconButton>
+    ),
+    ...course,
+  }));
+};
+
 export default function CoursePicker() {
   const [courses, setCourses] = useState([]);
 
@@ -30,6 +49,12 @@ export default function CoursePicker() {
       courses.some((course) => course.id === newCourse.id)
     )
       return null;
+
+    newCourse.sections = newCourse.sections.map((section) => ({
+      selected: true,
+      ...section,
+    }));
+
     setCourses((prevState) => [newCourse, ...prevState]);
   };
 
@@ -39,21 +64,20 @@ export default function CoursePicker() {
     });
   };
 
-  const formatCourses = (courses) => {
-    return courses.map((course) => ({
-      codeName: `${course.name} (${course.code})`,
-      settings: <SettingsPopover key={course.id} course={course} />,
-      remove: (
-        <IconButton
-          onClick={() => onRemoveCourse(course)}
-          edge="end"
-          aria-label="comments"
-        >
-          <RemoveIcon />
-        </IconButton>
-      ),
-      ...course,
-    }));
+  const onToggleSection = (course, section) => {
+    setCourses((prevState) => {
+      let coursesDup = JSON.parse(JSON.stringify(prevState));
+
+      let toggleCourse = coursesDup.find(
+        (prevCourse) => prevCourse.id === course.id
+      );
+      let toggleSection = toggleCourse.sections.find(
+        (prevSection) => prevSection.id === section.id
+      );
+      toggleSection.selected = !toggleSection.selected;
+
+      return coursesDup;
+    });
   };
 
   return (
@@ -65,6 +89,8 @@ export default function CoursePicker() {
           isLoading={false}
           courses={formatCourses(courses)}
           headerCells={headerCells}
+          onRemoveCourse={onRemoveCourse}
+          onToggleSection={onToggleSection}
         />
       </div>
     </StyledCoursePicker>

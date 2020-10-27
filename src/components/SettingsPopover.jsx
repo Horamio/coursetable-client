@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SettingsPopover({ course }) {
+export default function SettingsPopover({ course, onToggleSection }) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -62,8 +62,8 @@ export default function SettingsPopover({ course }) {
               key={section.id}
               control={
                 <Checkbox
-                  checked={false}
-                  onChange={() => {}}
+                  checked={section.selected}
+                  onChange={() => onToggleSection(course, section)}
                   inputProps={{ "aria-label": "primary checkbox" }}
                   color="primary"
                 />
