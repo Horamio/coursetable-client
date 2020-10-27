@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useQuery } from "react-query";
 import { makeStyles } from "@material-ui/core/styles";
+import update from "immutability-helper";
 
 // Components
 import IconButton from "@material-ui/core/IconButton";
@@ -27,12 +27,11 @@ export default function SettingsPopover({ course, onCourseChange }) {
   const [localCourse, setLocalCourse] = useState(course);
 
   const handleToggleSection = (sectionIndex) => {
-    setLocalCourse((prevLocalCourse) => {
-      const localCourseDup = JSON.parse(JSON.stringify(prevLocalCourse));
-      let section = localCourseDup.sections[sectionIndex];
-      section.selected = !section.selected;
-      return localCourseDup;
-    });
+    setLocalCourse((prev) =>
+      update(prev, {
+        sections: { [sectionIndex]: { selected: { $apply: (b) => !b } } },
+      })
+    );
   };
 
   const handleClick = (event) => {

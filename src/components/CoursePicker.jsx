@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
+import update from "immutability-helper";
 
 // Components
 import CourseTable from "./CourseTable";
@@ -66,12 +67,10 @@ export default function CoursePicker() {
 
   const onCourseChange = (course) => {
     setCourses((prevState) => {
-      const coursesDup = JSON.parse(JSON.stringify(prevState));
-      let courseIndex = coursesDup.findIndex(
+      let courseIndex = prevState.findIndex(
         (courseDup) => courseDup.id === course.id
       );
-      coursesDup[courseIndex] = course;
-      return coursesDup;
+      return update(prevState, { [courseIndex]: { $set: course } });
     });
   };
 
