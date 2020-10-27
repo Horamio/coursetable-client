@@ -23,11 +23,11 @@ const headerCells = [
 const formatCourses = (courses) => {
   return courses.map((course) => ({
     codeName: `${course.name} (${course.code})`,
-    settings: ({ onToggleSection }) => (
+    settings: ({ onCourseChange }) => (
       <SettingsPopover
         key={course.id}
         course={course}
-        onToggleSection={onToggleSection}
+        onCourseChange={onCourseChange}
       />
     ),
     remove: ({ onClick }) => (
@@ -64,18 +64,13 @@ export default function CoursePicker() {
     });
   };
 
-  const onToggleSection = (course, section) => {
+  const onCourseChange = (course) => {
     setCourses((prevState) => {
-      let coursesDup = JSON.parse(JSON.stringify(prevState));
-
-      let toggleCourse = coursesDup.find(
-        (prevCourse) => prevCourse.id === course.id
+      const coursesDup = JSON.parse(JSON.stringify(prevState));
+      let courseIndex = coursesDup.findIndex(
+        (courseDup) => courseDup.id === course.id
       );
-      let toggleSection = toggleCourse.sections.find(
-        (prevSection) => prevSection.id === section.id
-      );
-      toggleSection.selected = !toggleSection.selected;
-
+      coursesDup[courseIndex] = course;
       return coursesDup;
     });
   };
@@ -90,7 +85,7 @@ export default function CoursePicker() {
           courses={formatCourses(courses)}
           headerCells={headerCells}
           onRemoveCourse={onRemoveCourse}
-          onToggleSection={onToggleSection}
+          onCourseChange={onCourseChange}
         />
       </div>
     </StyledCoursePicker>

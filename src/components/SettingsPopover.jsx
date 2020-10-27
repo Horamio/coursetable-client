@@ -21,9 +21,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SettingsPopover({ course, onToggleSection }) {
+export default function SettingsPopover({ course, onCourseChange }) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [localCourse, setLocalCourse] = useState(course);
+
+  const handleToggleSection = (sectionIndex) => {
+    setLocalCourse((prevLocalCourse) => {
+      const localCourseDup = JSON.parse(JSON.stringify(prevLocalCourse));
+      let section = localCourseDup.sections[sectionIndex];
+      section.selected = !section.selected;
+      return localCourseDup;
+    });
+  };
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -31,6 +41,7 @@ export default function SettingsPopover({ course, onToggleSection }) {
 
   const handleClose = () => {
     setAnchorEl(null);
+    onCourseChange(localCourse);
   };
 
   const open = Boolean(anchorEl);
@@ -57,13 +68,13 @@ export default function SettingsPopover({ course, onToggleSection }) {
         }}
       >
         <FormGroup row>
-          {course.sections.map((section) => (
+          {localCourse.sections.map((section, sectionIndex) => (
             <FormControlLabel
               key={section.id}
               control={
                 <Checkbox
                   checked={section.selected}
-                  onChange={() => onToggleSection(course, section)}
+                  onChange={() => handleToggleSection(sectionIndex)}
                   inputProps={{ "aria-label": "primary checkbox" }}
                   color="primary"
                 />
