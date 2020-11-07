@@ -1,4 +1,6 @@
-const BASE_URL = "https://coursetable-api.herokuapp.com/";
+import { config } from "../config";
+
+const BASE_URL = config.url.API_URL;
 
 export const request = async (url, options) => {
   return fetch(BASE_URL + url, options).then((resp) => resp.json());
