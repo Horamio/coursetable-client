@@ -1,11 +1,12 @@
 import { useState } from "react";
 
 const entitiesToDatabase = (entities) => {
-  if (!Array.isArray(entities)) return {};
+  if (!entities) return {};
 
-  return entities.reduce((acum, entity) => {
-    if (!entity.tableName || !entity.key) return acum;
-    acum[entity.tableName] = { ...entity, records: {} };
+  return Object.keys(entities).reduce((acum, tableName) => {
+    const table = entities[tableName];
+    if (!table.key) return acum;
+    acum[tableName] = { ...table, tableName: tableName, records: {} };
     return acum;
   }, {});
 };

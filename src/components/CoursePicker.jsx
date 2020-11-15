@@ -51,10 +51,13 @@ const serializers = {
   }),
 };
 
-const entities = [
-  { key: "id", tableName: "course" },
-  { key: "id", tableName: "section", references: [{ course: "course_id" }] },
-];
+const entities = {
+  course: { key: "id" },
+  section: {
+    key: "id",
+    references: [{ course: "course_id" }],
+  },
+};
 
 export default function CoursePicker() {
   const coursesData = useRelatedState(entities, serializers);
