@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import update from "immutability-helper";
+import pluralize from "pluralize";
 
 // Components
 import CourseTable from "./CourseTable";
