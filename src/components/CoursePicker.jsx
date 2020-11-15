@@ -55,7 +55,7 @@ const entities = {
   course: { key: "id" },
   section: {
     key: "id",
-    references: [{ course: "course_id" }],
+    references: [{ tableName: "course", key: "course_id" }],
   },
 };
 

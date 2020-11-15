@@ -3,12 +3,31 @@ import { useState } from "react";
 const entitiesToDatabase = (entities) => {
   if (!entities) return {};
 
-  return Object.keys(entities).reduce((acum, tableName) => {
+  let database = Object.keys(entities).reduce((acum, tableName) => {
     const table = entities[tableName];
     if (!table.key) return acum;
-    acum[tableName] = { ...table, tableName: tableName, records: {} };
+    acum[tableName] = {
+      ...table,
+      tableName: tableName,
+      records: {},
+      relations: [],
+    };
     return acum;
   }, {});
+
+  Object.values(database).forEach((table) => {
+    if (!Array.isArray(table.references)) return;
+
+    table.references.forEach((reference) => {
+      if (!reference.tableName || !database[reference.tableName]) return;
+      database[reference.tableName].relations.push({
+        type: "has_many",
+        tableName: table.tableName,
+      });
+    });
+  });
+
+  return database;
 };
 
 export function useRelatedState(entities, serializers) {
