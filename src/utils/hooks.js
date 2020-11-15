@@ -1,4 +1,5 @@
 import { useState } from "react";
+import pluralize from "pluralize";
 
 const entitiesToDatabase = (entities) => {
   if (!entities) return {};
@@ -35,11 +36,25 @@ export function useRelatedState(entities, serializers) {
   const [database, setDatabase] = useState(initialDatabase);
 
   const setRecord = (tableName, newRecord) => {
+    let newRecordDup = JSON.parse(JSON.stringify(newRecord));
+
     const table = database[tableName];
     if (!table) return;
 
-    const keyValue = newRecord[table.key];
+    const keyValue = newRecordDup[table.key];
     if (!keyValue) return;
+
+    table.relations.forEach((relation) => {
+      let relationsName = pluralize.plural(relation.tableName);
+      let relatedRecords = newRecordDup[relationsName];
+
+      if (relatedRecords) {
+        relatedRecords.forEach((record) => {
+          setRecord(relation.tableName, record);
+        });
+        delete newRecordDup[relationsName];
+      }
+    });
 
     let selectedRecord = table.records[keyValue] || {};
 
@@ -67,11 +82,32 @@ export function useRelatedState(entities, serializers) {
 
     return table.records[keyValue];
   };
+
   const serialize = (tableName, serializerKey) => {
     const table = database[tableName];
     if (!table) return;
 
-    const recordsArray = Object.values(table.records);
+    const recordsArray = Object.values(table.records).map((record) => {
+      const relations = table.relations;
+      const keyName = table.key;
+
+      relations.forEach((relation) => {
+        const relatedTableName = relation.tableName;
+        const relatedTable = database[relatedTableName];
+        const reference = relatedTable.references.find(
+          (reference) => reference.tableName === table.tableName
+        );
+        const referenceKeyName = reference.key;
+        const relatedRecords = Object.values(relatedTable.records).filter(
+          (relatedRecord) => record[keyName] === relatedRecord[referenceKeyName]
+        );
+
+        const pluralRelatedTableName = pluralize.plural(relatedTableName);
+        record[pluralRelatedTableName] = relatedRecords;
+      });
+
+      return record;
+    });
     return recordsArray;
   };
 
