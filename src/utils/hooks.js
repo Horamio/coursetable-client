@@ -35,14 +35,14 @@ export function useRelatedState(entities, serializers) {
   const initialDatabase = entitiesToDatabase(entities);
   const [database, setDatabase] = useState(initialDatabase);
 
-  const setRecord = (tableName, newRecord) => {
+  const injectRecord = (tableName, newRecord, tempDatabase) => {
     let newRecordDup = JSON.parse(JSON.stringify(newRecord));
+    let databaseDup = JSON.parse(JSON.stringify(tempDatabase));
 
-    const table = database[tableName];
-    if (!table) return;
-
+    const table = databaseDup[tableName];
+    if (!table) return tempDatabase;
     const keyValue = newRecordDup[table.key];
-    if (!keyValue) return;
+    if (!keyValue) return tempDatabase;
 
     table.relations.forEach((relation) => {
       let relationsName = pluralize.plural(relation.tableName);
@@ -50,7 +50,7 @@ export function useRelatedState(entities, serializers) {
 
       if (relatedRecords) {
         relatedRecords.forEach((record) => {
-          setRecord(relation.tableName, record);
+          databaseDup = injectRecord(relation.tableName, record, databaseDup);
         });
         delete newRecordDup[relationsName];
       }
@@ -58,21 +58,24 @@ export function useRelatedState(entities, serializers) {
 
     let selectedRecord = table.records[keyValue] || {};
 
-    setDatabase((prevState) => {
-      let databaseDup = JSON.parse(JSON.stringify(prevState));
-      return {
-        ...databaseDup,
-        [tableName]: {
-          ...table,
-          records: {
-            ...table.records,
-            [keyValue]: {
-              ...selectedRecord,
-              ...newRecord,
-            },
+    return {
+      ...databaseDup,
+      [tableName]: {
+        ...table,
+        records: {
+          ...table.records,
+          [keyValue]: {
+            ...selectedRecord,
+            ...newRecordDup,
           },
         },
-      };
+      },
+    };
+  };
+
+  const setRecord = (tableName, newRecord) => {
+    setDatabase((prevState) => {
+      return injectRecord(tableName, newRecord, prevState);
     });
   };
 
@@ -84,7 +87,8 @@ export function useRelatedState(entities, serializers) {
   };
 
   const serialize = (tableName, serializerKey) => {
-    const table = database[tableName];
+    let databaseDup = JSON.parse(JSON.stringify(database));
+    const table = databaseDup[tableName];
     if (!table) return;
 
     const recordsArray = Object.values(table.records).map((record) => {
@@ -93,7 +97,7 @@ export function useRelatedState(entities, serializers) {
 
       relations.forEach((relation) => {
         const relatedTableName = relation.tableName;
-        const relatedTable = database[relatedTableName];
+        const relatedTable = databaseDup[relatedTableName];
         const reference = relatedTable.references.find(
           (reference) => reference.tableName === table.tableName
         );
