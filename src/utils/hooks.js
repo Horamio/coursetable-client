@@ -1,54 +1,77 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-const statesToRecords = (states, foreignKeyLabel) => {
-  if (!Array.isArray(states)) return {};
+const entitiesToDatabase = (entities) => {
+  if (!Array.isArray(entities)) return {};
 
-  return states.reduce((acum, state) => {
-    const foreignKey = state[foreignKeyLabel];
-    acum[foreignKey] = state;
+  return entities.reduce((acum, entity) => {
+    if (!entity.tableName || !entity.key) return acum;
+    acum[entity.tableName] = { ...entity, records: {} };
     return acum;
   }, {});
 };
 
-export function useRelatedState(initialState, foreignKeyLabel, serializers) {
-  const initialRecords = statesToRecords(initialState, foreignKeyLabel);
-  const [records, setRecords] = useState(initialRecords);
+export function useRelatedState(entities, serializers) {
+  const initialDatabase = entitiesToDatabase(entities);
+  const [database, setDatabase] = useState(initialDatabase);
 
-  const setRecord = (newRecord) => {
-    const foreignKey = newRecord[foreignKeyLabel];
-    if (!foreignKey) return;
+  const setRecord = (tableName, newRecord) => {
+    const table = database[tableName];
+    if (!table) return;
 
-    let selectedRecord = records[foreignKey] || {};
+    const keyValue = newRecord[table.key];
+    if (!keyValue) return;
 
-    setRecords((prevState) => {
-      let recordsDup = JSON.parse(JSON.stringify(prevState));
+    let selectedRecord = table.records[keyValue] || {};
+
+    setDatabase((prevState) => {
+      let databaseDup = JSON.parse(JSON.stringify(prevState));
       return {
-        ...recordsDup,
-        [foreignKey]: {
-          ...selectedRecord,
-          ...newRecord,
+        ...databaseDup,
+        [tableName]: {
+          ...table,
+          records: {
+            ...table.records,
+            [keyValue]: {
+              ...selectedRecord,
+              ...newRecord,
+            },
+          },
         },
       };
     });
   };
 
-  const getRecord = (foreignKey) => records[foreignKey];
-  const serialize = (serializerKey) => {
-    const recordsArray = Object.values(records);
+  const getRecord = (tableName, keyValue) => {
+    const table = database[tableName];
+    if (!table) return;
+
+    return table.records[keyValue];
+  };
+  const serialize = (tableName, serializerKey) => {
+    const table = database[tableName];
+    if (!table) return;
+
+    const recordsArray = Object.values(table.records);
     return recordsArray;
   };
 
-  const deleteRecord = (foreignKey) => {
-    if (!foreignKey) return;
-    let selectedRecord = records[foreignKey];
+  const deleteRecord = (tableName, keyValue) => {
+    if (!tableName || !keyValue) return;
+
+    const table = database[tableName];
+    if (!table) return;
+    let selectedRecord = table.records[keyValue];
     if (!selectedRecord) return;
 
-    setRecords((prevState) => {
-      let recordsDup = JSON.parse(JSON.stringify(prevState));
-      delete recordsDup[foreignKey];
-      return recordsDup;
+    setDatabase((prevState) => {
+      let databaseDup = JSON.parse(JSON.stringify(prevState));
+      const tableDup = databaseDup[tableName];
+      const recordsDup = tableDup.records;
+      delete recordsDup[keyValue];
+
+      return databaseDup;
     });
   };
 
-  return { records, getRecord, setRecord, deleteRecord, serialize };
+  return { database, getRecord, setRecord, deleteRecord, serialize };
 }

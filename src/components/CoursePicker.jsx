@@ -50,8 +50,13 @@ const serializers = {
   }),
 };
 
+const entities = [
+  { key: "id", tableName: "course" },
+  { key: "id", tableName: "section", references: [{ course: "course_id" }] },
+];
+
 export default function CoursePicker() {
-  const courses = useRelatedState([], "id", serializers);
+  const coursesData = useRelatedState(entities, serializers);
 
   const onAddCourse = (newCourse) => {
     if (!newCourse || !newCourse.id) return null;
@@ -61,15 +66,15 @@ export default function CoursePicker() {
       ...section,
     }));
 
-    courses.setRecord(newCourse);
+    coursesData.setRecord("course", newCourse);
   };
 
   const onRemoveCourse = (removedCourse) => {
-    courses.deleteRecord(removedCourse.id);
+    coursesData.deleteRecord("course", removedCourse.id);
   };
 
   const onCourseChange = (course) => {
-    courses.setRecord(course);
+    coursesData.setRecord("course", course);
   };
 
   return (
@@ -77,9 +82,9 @@ export default function CoursePicker() {
       <CourseFilter onAddCourse={onAddCourse} />
       <div className="table-container">
         <CourseTable
-          change={courses.length}
+          change={coursesData.serialize("course").length}
           isLoading={false}
-          courses={formatCourses(courses.serialize())}
+          courses={formatCourses(coursesData.serialize("course"))}
           headerCells={headerCells}
           onRemoveCourse={onRemoveCourse}
           onCourseChange={onCourseChange}
