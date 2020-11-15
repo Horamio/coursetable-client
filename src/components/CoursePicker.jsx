@@ -9,6 +9,9 @@ import SettingsPopover from "./SettingsPopover";
 import RemoveIcon from "@material-ui/icons/Remove";
 import IconButton from "@material-ui/core/IconButton";
 
+//Utils
+import { useRelatedState } from "../utils";
+
 const StyledCoursePicker = styled.div`
   width: 470px;
 `;
@@ -40,38 +43,33 @@ const formatCourses = (courses) => {
   }));
 };
 
+const serializers = {
+  toSend: (item) => ({
+    id: item.id,
+    code: item.code,
+  }),
+};
+
 export default function CoursePicker() {
-  const [courses, setCourses] = useState([]);
+  const courses = useRelatedState([], "id", serializers);
 
   const onAddCourse = (newCourse) => {
-    if (
-      !newCourse ||
-      !newCourse.id ||
-      courses.some((course) => course.id === newCourse.id)
-    )
-      return null;
+    if (!newCourse || !newCourse.id) return null;
 
     newCourse.sections = newCourse.sections.map((section) => ({
       selected: true,
       ...section,
     }));
 
-    setCourses((prevState) => [newCourse, ...prevState]);
+    courses.setRecord(newCourse);
   };
 
   const onRemoveCourse = (removedCourse) => {
-    setCourses((prevState) => {
-      return prevState.filter((course) => course.id !== removedCourse.id);
-    });
+    courses.deleteRecord(removedCourse.id);
   };
 
   const onCourseChange = (course) => {
-    setCourses((prevState) => {
-      let courseIndex = prevState.findIndex(
-        (courseDup) => courseDup.id === course.id
-      );
-      return update(prevState, { [courseIndex]: { $set: course } });
-    });
+    courses.setRecord(course);
   };
 
   return (
@@ -81,7 +79,7 @@ export default function CoursePicker() {
         <CourseTable
           change={courses.length}
           isLoading={false}
-          courses={formatCourses(courses)}
+          courses={formatCourses(courses.serialize())}
           headerCells={headerCells}
           onRemoveCourse={onRemoveCourse}
           onCourseChange={onCourseChange}
