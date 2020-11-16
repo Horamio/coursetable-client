@@ -46,6 +46,29 @@ class Record {
   }
 }
 
+class Table {
+  constructor(tableName, database) {
+    this.database = database;
+    this.tableName = tableName;
+    this.data = database[tableName];
+    this.all = Object.values(this.data.records).map(
+      (recordData) => new Record(recordData, tableName, database)
+    );
+  }
+
+  where(finder) {
+    let filteredRecords = this.all;
+
+    Object.keys(finder).forEach((finderKey) => {
+      filteredRecords = filteredRecords.filter(
+        (record) => record.data[finderKey] === finder[finderKey]
+      );
+    });
+
+    return filteredRecords;
+  }
+}
+
 const entitiesToDatabase = (entities) => {
   if (!entities) return {};
 
@@ -124,6 +147,11 @@ export function useRelatedState(entities, serializers) {
     });
   };
 
+  const getTable = (tableName) => {
+    if (!tableName) return;
+    return new Table(tableName, database);
+  };
+
   const getRecord = (tableName, keyValue) => {
     const table = database[tableName];
     if (!table) return;
@@ -135,11 +163,9 @@ export function useRelatedState(entities, serializers) {
     let databaseDup = JSON.parse(JSON.stringify(database));
     const table = databaseDup[tableName];
     if (!table) return;
-
     const recordsArray = Object.values(table.records).map((record) => {
       const relations = table.relations;
       const keyName = table.key;
-
       relations.forEach((relation) => {
         const relatedTableName = relation.tableName;
         const relatedTable = databaseDup[relatedTableName];
@@ -150,11 +176,9 @@ export function useRelatedState(entities, serializers) {
         const relatedRecords = Object.values(relatedTable.records).filter(
           (relatedRecord) => record[keyName] === relatedRecord[referenceKeyName]
         );
-
         const pluralRelatedTableName = pluralize.plural(relatedTableName);
         record[pluralRelatedTableName] = relatedRecords;
       });
-
       return record;
     });
     return recordsArray;
@@ -178,5 +202,5 @@ export function useRelatedState(entities, serializers) {
     });
   };
 
-  return { database, getRecord, setRecord, deleteRecord, serialize };
+  return { database, getRecord, setRecord, getTable, deleteRecord, serialize };
 }
