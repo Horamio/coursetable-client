@@ -1,6 +1,51 @@
 import { useState } from "react";
 import pluralize from "pluralize";
 
+class Record {
+  constructor(recordData, tableName, database) {
+    this.database = database;
+    this.tableName = tableName;
+    this.table = this.database[this.tableName];
+    this.relations = this.table.relations;
+    this.data = recordData;
+
+    this.relations.forEach((relation) => {
+      const relationTableName = pluralize.plural(relation.tableName);
+      Record.prototype[relationTableName] = this.getSubRecords(
+        relation.tableName
+      );
+    });
+  }
+
+  relation(subTableName) {
+    return this.relations.find(
+      (relation) => relation.tableName === subTableName
+    );
+  }
+
+  getSubRecords(subTableName) {
+    let relation = this.relation(subTableName);
+
+    if (!relation) return;
+
+    let subTable = this.database[subTableName];
+    let reference = subTable.references.find(
+      (reference) => reference.tableName === this.table.tableName
+    );
+
+    if (!reference) return;
+    let tableKey = this.table.key;
+
+    let subRecords = Object.values(subTable.records).filter(
+      (record) => record[reference.key] === this.data[tableKey]
+    );
+
+    return subRecords.map(
+      (subRecord) => new Record(subRecord, subTableName, this.database)
+    );
+  }
+}
+
 const entitiesToDatabase = (entities) => {
   if (!entities) return {};
 
@@ -82,8 +127,8 @@ export function useRelatedState(entities, serializers) {
   const getRecord = (tableName, keyValue) => {
     const table = database[tableName];
     if (!table) return;
-
-    return table.records[keyValue];
+    let recordData = table.records[keyValue];
+    return new Record(recordData, tableName, database);
   };
 
   const serialize = (tableName, serializerKey) => {
