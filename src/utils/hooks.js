@@ -160,28 +160,28 @@ export function useRelatedState(entities, serializers) {
   };
 
   const serialize = (tableName, serializerKey) => {
-    let databaseDup = JSON.parse(JSON.stringify(database));
-    const table = databaseDup[tableName];
+    let table = getTable(tableName);
     if (!table) return;
-    const recordsArray = Object.values(table.records).map((record) => {
-      const relations = table.relations;
-      const keyName = table.key;
+
+    let response = [];
+
+    table.all.forEach((record) => {
+      let recordData = record.data;
+      let relations = table.data.relations;
+
       relations.forEach((relation) => {
-        const relatedTableName = relation.tableName;
-        const relatedTable = databaseDup[relatedTableName];
-        const reference = relatedTable.references.find(
-          (reference) => reference.tableName === table.tableName
-        );
-        const referenceKeyName = reference.key;
-        const relatedRecords = Object.values(relatedTable.records).filter(
-          (relatedRecord) => record[keyName] === relatedRecord[referenceKeyName]
-        );
-        const pluralRelatedTableName = pluralize.plural(relatedTableName);
-        record[pluralRelatedTableName] = relatedRecords;
+        let relationTableName = relation.tableName;
+        let subRecordsData = record
+          .getSubRecords(relationTableName)
+          .map((record) => record.data);
+
+        recordData[pluralize.plural(relationTableName)] = subRecordsData;
       });
-      return record;
+
+      response.push(recordData);
     });
-    return recordsArray;
+
+    return response;
   };
 
   const deleteRecord = (tableName, keyValue) => {
