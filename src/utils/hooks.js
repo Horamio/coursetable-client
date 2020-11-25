@@ -1,5 +1,7 @@
 import { useState } from "react";
 import pluralize from "pluralize";
+import update from "immutability-helper";
+import { clone } from "./helpers";
 
 class Record {
   constructor(recordData, tableName, database) {
@@ -99,52 +101,92 @@ const entitiesToDatabase = (entities) => {
   return database;
 };
 
-export function useRelatedState(entities, serializers) {
-  const initialDatabase = entitiesToDatabase(entities);
-  const [database, setDatabase] = useState(initialDatabase);
+class JobCollection {
+  constructor(database) {
+    this.database = clone(database);
+    this.jobs = [];
+  }
 
-  const injectRecord = (tableName, newRecord, tempDatabase) => {
-    let newRecordDup = JSON.parse(JSON.stringify(newRecord));
-    let databaseDup = JSON.parse(JSON.stringify(tempDatabase));
+  execute() {
+    this.jobs.forEach((job) => {
+      const { type, tableName, payload } = job;
+      const table = this.database[tableName];
+      let tempPayload = clone(payload);
 
-    const table = databaseDup[tableName];
-    if (!table) return tempDatabase;
-    const keyValue = newRecordDup[table.key];
-    if (!keyValue) return tempDatabase;
-
-    table.relations.forEach((relation) => {
-      let relationsName = pluralize.plural(relation.tableName);
-      let relatedRecords = newRecordDup[relationsName];
-
-      if (relatedRecords) {
-        relatedRecords.forEach((record) => {
-          databaseDup = injectRecord(relation.tableName, record, databaseDup);
+      if (type === "CREATE") {
+        let keyValue = tempPayload[table.key];
+        this.database = update(this.database, {
+          [tableName]: { records: { [keyValue]: { $set: tempPayload } } },
         });
-        delete newRecordDup[relationsName];
+      }
+
+      if (type === "DELETE") {
+        let keyValue = tempPayload[table.key];
+        this.database = update(this.database, {
+          [tableName]: { records: { $unset: [keyValue] } },
+        });
       }
     });
 
-    let selectedRecord = table.records[keyValue] || {};
+    this.jobs = [];
+  }
 
-    return {
-      ...databaseDup,
-      [tableName]: {
-        ...table,
-        records: {
-          ...table.records,
-          [keyValue]: {
-            ...selectedRecord,
-            ...newRecordDup,
-          },
-        },
-      },
-    };
+  addJob({ type, tableName, payload }) {
+    if (!type || !tableName) return;
+
+    const job = { type, tableName, payload };
+    switch (type) {
+      case "CREATE":
+        this.jobs.push(job);
+        break;
+      case "DELETE":
+        this.jobs.unshift(job);
+        break;
+
+      default:
+        break;
+    }
+
+    return job;
+  }
+}
+
+export function useRelatedState(entities) {
+  const initialDatabase = entitiesToDatabase(entities);
+  const [database, setDatabase] = useState(initialDatabase);
+
+  const traverseRecord = (tableName, currentRecord, action = () => {}) => {
+    const table = database[tableName];
+    if (!table) return;
+    const keyValue = currentRecord[table.key];
+    if (!keyValue) return;
+
+    action(currentRecord, tableName);
+
+    table.relations.forEach((relation) => {
+      let relationsName = pluralize.plural(relation.tableName);
+      let relatedRecords = currentRecord[relationsName];
+
+      if (relatedRecords) {
+        relatedRecords.forEach((record) => {
+          traverseRecord(relation.tableName, record, action);
+        });
+      }
+    });
   };
 
   const setRecord = (tableName, newRecord) => {
-    setDatabase((prevState) => {
-      return injectRecord(tableName, newRecord, prevState);
-    });
+    const jobColletion = new JobCollection(database);
+    const action = (currentRecord, tableName) =>
+      jobColletion.addJob({
+        type: "CREATE",
+        tableName,
+        payload: currentRecord,
+      });
+    traverseRecord(tableName, newRecord, action);
+    jobColletion.execute();
+
+    setDatabase(jobColletion.database);
   };
 
   const getTable = (tableName) => {
@@ -168,6 +210,13 @@ export function useRelatedState(entities, serializers) {
     table.all.forEach((record) => {
       let recordData = record.data;
       let relations = table.data.relations;
+      let tableSerializers = table.data.serializers;
+      let currentSerializer =
+        tableSerializers && tableSerializers[serializerKey]
+          ? tableSerializers[serializerKey]
+          : (val) => val;
+
+      recordData = [recordData].map(currentSerializer)[0];
 
       relations.forEach((relation) => {
         let relationTableName = relation.tableName;
@@ -193,7 +242,7 @@ export function useRelatedState(entities, serializers) {
     if (!selectedRecord) return;
 
     setDatabase((prevState) => {
-      let databaseDup = JSON.parse(JSON.stringify(prevState));
+      let databaseDup = clone(prevState);
       const tableDup = databaseDup[tableName];
       const recordsDup = tableDup.records;
       delete recordsDup[keyValue];
@@ -202,5 +251,12 @@ export function useRelatedState(entities, serializers) {
     });
   };
 
-  return { database, getRecord, setRecord, getTable, deleteRecord, serialize };
+  return {
+    database,
+    getRecord,
+    setRecord,
+    getTable,
+    deleteRecord,
+    serialize,
+  };
 }

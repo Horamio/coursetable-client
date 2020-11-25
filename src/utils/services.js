@@ -1,4 +1,5 @@
 import { config } from "../config";
+import param from "jquery-param";
 
 const BASE_URL = config.url.API_URL;
 
@@ -44,5 +45,14 @@ export const getSections = (course = "") => {
   let url = "/sections?";
   if (course) url += `course_id=${course}&`;
 
+  return request(url);
+};
+
+export const getSchedules = (courses) => {
+  let url = "/section_associations/generate_schedules?";
+  // const courses = { a: "m" };
+  let courseParams = param({ courses });
+  // console.log({ courses, courseParams });
+  url += courseParams;
   return request(url);
 };

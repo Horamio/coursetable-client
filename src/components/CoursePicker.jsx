@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import update from "immutability-helper";
 
 // Components
 import CourseTable from "./CourseTable";
@@ -10,7 +9,7 @@ import RemoveIcon from "@material-ui/icons/Remove";
 import IconButton from "@material-ui/core/IconButton";
 
 //Utils
-import { useRelatedState } from "../utils";
+import { getSchedules, useRelatedState } from "../utils";
 
 const StyledCoursePicker = styled.div`
   width: 470px;
@@ -51,7 +50,7 @@ const serializers = {
 };
 
 const entities = {
-  course: { key: "id" },
+  course: { key: "id", serializers },
   section: {
     key: "id",
     references: [{ tableName: "course", key: "course_id" }],
@@ -60,6 +59,11 @@ const entities = {
 
 export default function CoursePicker() {
   const coursesData = useRelatedState(entities, serializers);
+
+  useEffect(() => {
+    let coursesObject = coursesData.serialize("course", "toSend");
+    getSchedules(coursesObject);
+  }, [JSON.stringify(coursesData.serialize("course"))]);
 
   const onAddCourse = (newCourse) => {
     if (!newCourse || !newCourse.id) return null;
