@@ -50,10 +50,25 @@ const serializers = {
 };
 
 const entities = {
-  course: { key: "id", serializers },
+  course: {
+    key: "id",
+    serializers: {
+      toSend: (item, serialize) => ({
+        id: item.id,
+        code: item.code,
+        sections: serialize("section", "toSend", item.sections),
+      }),
+    },
+  },
   section: {
     key: "id",
     references: [{ tableName: "course", key: "course_id" }],
+    serializers: {
+      toSend: (item) => ({
+        id: item.id,
+        code: item.code,
+      }),
+    },
   },
 };
 

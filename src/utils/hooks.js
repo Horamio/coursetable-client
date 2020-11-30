@@ -4,6 +4,7 @@ import update from "immutability-helper";
 import { clone } from "./helpers";
 
 class Record {
+  // restrict table field names, and add record data as fields : evaluate
   constructor(recordData, tableName, database) {
     this.database = database;
     this.tableName = tableName;
@@ -201,32 +202,31 @@ export function useRelatedState(entities) {
     return new Record(recordData, tableName, database);
   };
 
-  const serialize = (tableName, serializerKey) => {
+  const serialize = (tableName, serializerKey, records) => {
     let table = getTable(tableName);
     if (!table) return;
 
     let response = [];
 
-    table.all.forEach((record) => {
+    let classRecords = records ? records : table.all;
+
+    classRecords = classRecords.map((classRecord) => {
+      if (classRecord.constructor.name !== "Record")
+        return new Record(classRecord, tableName, database);
+      else return classRecord;
+    });
+
+    classRecords.forEach((record) => {
       let recordData = record.data;
-      let relations = table.data.relations;
       let tableSerializers = table.data.serializers;
       let currentSerializer =
         tableSerializers && tableSerializers[serializerKey]
           ? tableSerializers[serializerKey]
           : (val) => val;
 
-      recordData = [recordData].map(currentSerializer)[0];
-
-      relations.forEach((relation) => {
-        let relationTableName = relation.tableName;
-        let subRecordsData = record
-          .getSubRecords(relationTableName)
-          .map((record) => record.data);
-
-        recordData[pluralize.plural(relationTableName)] = subRecordsData;
-      });
-
+      recordData = [recordData].map((data) =>
+        currentSerializer(data, serialize)
+      )[0];
       response.push(recordData);
     });
 
