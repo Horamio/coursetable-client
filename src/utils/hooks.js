@@ -162,8 +162,6 @@ export function useRelatedState(entities) {
     const keyValue = currentRecord[table.key];
     if (!keyValue) return;
 
-    action(currentRecord, tableName);
-
     table.relations.forEach((relation) => {
       let relationsName = pluralize.plural(relation.tableName);
       let relatedRecords = currentRecord[relationsName];
@@ -173,7 +171,11 @@ export function useRelatedState(entities) {
           traverseRecord(relation.tableName, record, action);
         });
       }
+
+      delete currentRecord[relationsName];
     });
+
+    action(currentRecord, tableName);
   };
 
   const setRecord = (tableName, newRecord) => {
@@ -186,7 +188,6 @@ export function useRelatedState(entities) {
       });
     traverseRecord(tableName, newRecord, action);
     jobColletion.execute();
-
     setDatabase(jobColletion.database);
   };
 
