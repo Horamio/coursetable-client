@@ -18,6 +18,10 @@ class Record {
         relation.tableName
       );
     });
+
+    Object.keys(this.data).forEach((key) => {
+      Record.prototype[key] = this.data[key]; // here is the problem of duplicate data
+    });
   }
 
   relation(subTableName) {
@@ -220,16 +224,19 @@ export function useRelatedState(entities) {
     classRecords.forEach((record) => {
       let recordData = record.data;
       let tableSerializers = table.data.serializers;
+
       let currentSerializer =
         tableSerializers && tableSerializers[serializerKey]
           ? tableSerializers[serializerKey]
           : (val) => val;
 
-      recordData = [recordData].map((data) =>
-        currentSerializer(data, serialize)
-      )[0];
+      recordData = currentSerializer(record, serialize);
+      console.log({ currentSerializer, recordData });
+
       response.push(recordData);
     });
+
+    console.log({ response, serializerKey });
 
     return response;
   };

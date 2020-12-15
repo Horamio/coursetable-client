@@ -57,6 +57,16 @@ const entities = {
         id: item.id,
         code: item.code,
         sections: serialize("section", "toSend", item.sections),
+        // sections: item.sections, // this should not be possible, we are adding sections to db
+      }),
+      toShow: (item, serialize) => ({
+        id: item.id,
+        code: item.code,
+        name: item.name,
+        credits: item.credits,
+        semester: item.semester,
+        // sections: serialize("section", "toShow", item.sections),
+        sections: item.sections,
       }),
     },
   },
@@ -68,6 +78,11 @@ const entities = {
         id: item.id,
         code: item.code,
       }),
+      toShow: (item) => ({
+        id: item.id, // is necesary to have the key, solve this, we are modifying state on setting, should be merge if aready exist
+        code: item.code,
+        selected: item.selected,
+      }),
     },
   },
 };
@@ -75,10 +90,15 @@ const entities = {
 export default function CoursePicker() {
   const coursesData = useRelatedState(entities, serializers);
 
-  useEffect(() => {
-    let coursesObject = coursesData.serialize("course", "toSend");
-    getSchedules(coursesObject);
-  }, [JSON.stringify(coursesData.serialize("course"))]);
+  // useEffect(() => {
+  //   let coursesObject = coursesData.serialize("course", "toSend");
+  //   getSchedules(coursesObject);
+  // }, [JSON.stringify(coursesData.serialize("course"))]);
+
+  console.log({
+    db: coursesData.database,
+    ser: formatCourses(coursesData.serialize("course", "toShow")),
+  });
 
   const onAddCourse = (newCourse) => {
     if (!newCourse || !newCourse.id) return null;
@@ -104,9 +124,11 @@ export default function CoursePicker() {
       <CourseFilter onAddCourse={onAddCourse} />
       <div className="table-container">
         <CourseTable
-          change={coursesData.serialize("course").length}
+          change={coursesData.serialize("course", "toShow").length}
           isLoading={false}
-          courses={formatCourses(coursesData.serialize("course"))}
+          // courses={formatCourses(coursesData.serialize("course"))}
+          courses={formatCourses(coursesData.serialize("course", "toShow"))}
+          // courses={[]}
           headerCells={headerCells}
           onRemoveCourse={onRemoveCourse}
           onCourseChange={onCourseChange}
