@@ -20,7 +20,7 @@ class Record {
     });
 
     Object.keys(this.data).forEach((key) => {
-      Record.prototype[key] = this.data[key]; // here is the problem of duplicate data
+      this[key] = this.data[key]; // here is the problem of duplicate data
     });
   }
 
