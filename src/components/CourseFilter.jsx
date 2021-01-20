@@ -46,20 +46,26 @@ export default function CourseFilter({
   const [course, setCourse] = useState(null);
 
   const collegesQuery = useQuery("colleges", () => getColleges());
-  const facultiesQuery = useQuery("faculties", () =>
-    getFaculties(college && college.id)
-  );
-  const specialitiesQuery = useQuery("specialities", () =>
-    getSpecialities(college && college.id, faculty && faculty.id)
-  );
-  const coursesQuery = useQuery("courses", () =>
-    getCourses(
-      college && college.id,
-      faculty && faculty.id,
-      speciality && speciality.id,
-      semester
-    )
-  );
+  const facultiesQuery = useQuery("faculties", () => {
+    let params = { college_id: college && college.id };
+    return getFaculties(params);
+  });
+  const specialitiesQuery = useQuery("specialities", () => {
+    let params = {
+      college_id: college && college.id,
+      faculty_id: faculty && faculty.id,
+    };
+    return getSpecialities(params);
+  });
+  const coursesQuery = useQuery("courses", () => {
+    let params = {
+      college_id: college && college.id,
+      faculty_id: faculty && faculty.id,
+      speciality_id: speciality && speciality.id,
+      semester: semester,
+    };
+    return getCourses(params);
+  });
 
   const onCollegeChange = (event, newValue) => {
     setCollege(newValue);
